@@ -14,6 +14,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 namespace ed
 {
 
@@ -266,6 +268,27 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
+    if (r.readGroup("PMZC"))
+    {
+        float min;
+        r.value("min", min);
+
+        float max;
+        r.value("max", max);
+
+        int include;
+        r.value("include", include);
+
+        std::cout << "min: " << min << std::endl;
+        std::cout << "max: " << max << std::endl;
+        std::cout << "inc: " << include << std::endl;
+
+        ed::PMZCConstPtr pmczPtr = ed::PMZCConstPtr(new ed::PMZC(min, max, include == 0 ? false : true));
+        req.setPMZC(id, pmczPtr);
+
+        r.endGroup();
+    }
+
     if (r.readArray("flags"))
     {
         while (r.nextArrayItem())
@@ -286,4 +309,3 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
 } // end namespace models
 
 } // end namespace ed
-

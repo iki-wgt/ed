@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <geolib/datatypes.h>
+#include "ed/PMZC.h"
 
 #include "ed/convex_hull_2d.h"
 #include "ed/convex_hull.h"
@@ -50,7 +51,10 @@ public:
     std::map<UUID, geo::ShapeConstPtr> shapes;
     void setShape(const UUID& id, const geo::ShapeConstPtr& shape) { shapes[id] = shape; flagUpdated(id); }
 
+    // PMZC
 
+    std::map<UUID, ed::PMZCConstPtr> pmzcs;
+    void setPMZC(const UUID& id, const ed::PMZCConstPtr& pmzc) { pmzcs[id] = pmzc; flagUpdated(id); }
 
 
     // CONVEX HULLS NEW

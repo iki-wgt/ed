@@ -58,6 +58,10 @@ class Relation;
 typedef boost::shared_ptr<Relation> RelationPtr;
 typedef boost::shared_ptr<const Relation> RelationConstPtr;
 
+class PMZC;
+typedef boost::shared_ptr<PMZC> PMZCPtr;
+typedef boost::shared_ptr<const PMZC> PMZCConstPtr;
+
 class ConvexHull2D;
 class ImageMask;
 

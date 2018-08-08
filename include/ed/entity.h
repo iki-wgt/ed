@@ -14,6 +14,8 @@
 #include "ed/property.h"
 #include "ed/property_key.h"
 
+#include "ed/PMZC.h"
+
 #include "ed/logging.h"
 
 #include "ed/measurement_convex_hull.h"
@@ -93,6 +95,19 @@ public:
     }
 
     inline bool has_pose() const { return has_pose_; }
+
+
+    inline void setPMZC(const ed::PMZCConstPtr& pmzc)
+    {
+      pmzc_ = pmzc;
+    }
+
+    inline const ed::PMZCConstPtr& PMZC() const
+    {
+        return pmzc_;
+    }
+
+
 
     inline const tue::config::DataConstPointer& data() const { return config_; }
     inline void setData(const tue::config::DataConstPointer& data) { config_ = data; }
@@ -237,6 +252,8 @@ private:
 
     bool has_pose_;
     geo::Pose3D pose_;
+
+    ed::PMZCConstPtr pmzc_;
 
 //    double creation_time_;
 

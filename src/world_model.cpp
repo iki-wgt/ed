@@ -9,6 +9,8 @@
 
 #include "ed/property_key_db.h"
 
+#include "ed/types.h"
+
 namespace ed
 {
 
@@ -39,6 +41,12 @@ void WorldModel::update(const UpdateRequest& req)
         {
             e->addMeasurement(*it2);
         }
+    }
+
+    for(std::map<UUID, ed::PMZCConstPtr>::const_iterator it = req.pmzcs.begin(); it != req.pmzcs.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setPMZC(it->second);
     }
 
     // Update poses
@@ -447,5 +455,3 @@ const PropertyKeyDBEntry* WorldModel::getPropertyInfo(const std::string& name) c
 }
 
 }
-
-

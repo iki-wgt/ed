@@ -14,8 +14,6 @@
 
 #include <sstream>
 
-#include <iostream>
-
 namespace ed
 {
 
@@ -278,10 +276,6 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
 
         int include;
         r.value("include", include);
-
-        std::cout << "min: " << min << std::endl;
-        std::cout << "max: " << max << std::endl;
-        std::cout << "inc: " << include << std::endl;
 
         ed::PMZCConstPtr pmczPtr = ed::PMZCConstPtr(new ed::PMZC(min, max, include == 0 ? false : true));
         req.setPMZC(id, pmczPtr);

@@ -14,6 +14,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 namespace ed
 {
 
@@ -281,6 +283,12 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         req.setPMZC(id, pmczPtr);
 
         r.endGroup();
+    }
+
+    std::string stateUpdateGroup;
+    if (r.value("state-update-group", stateUpdateGroup, tue::config::OPTIONAL))
+    {
+        req.setStateUpdateGroup(id, stateUpdateGroup);
     }
 
     if (r.readArray("flags"))

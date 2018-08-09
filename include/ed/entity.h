@@ -99,7 +99,7 @@ public:
 
     inline void setPMZC(const ed::PMZCConstPtr& pmzc)
     {
-      pmzc_ = pmzc;
+        pmzc_ = pmzc;
     }
 
     inline const ed::PMZCConstPtr& PMZC() const
@@ -107,6 +107,16 @@ public:
         return pmzc_;
     }
 
+
+    inline void setStateUpdateGroup(std::string stateUpdateGroup)
+    {
+        stateUpdateGroup_ = stateUpdateGroup;
+    }
+
+    inline const std::string& stateUpdateGroup() const
+    {
+        return stateUpdateGroup_;
+    }
 
 
     inline const tue::config::DataConstPointer& data() const { return config_; }
@@ -254,6 +264,8 @@ private:
     geo::Pose3D pose_;
 
     ed::PMZCConstPtr pmzc_;
+
+    std::string stateUpdateGroup_;
 
 //    double creation_time_;
 

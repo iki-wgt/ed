@@ -56,6 +56,11 @@ public:
     std::map<UUID, ed::PMZCConstPtr> pmzcs;
     void setPMZC(const UUID& id, const ed::PMZCConstPtr& pmzc) { pmzcs[id] = pmzc; flagUpdated(id); }
 
+    // STATEUPDATEGROUP
+
+    std::map<UUID, std::string> stateUpdateGroups;
+    void setStateUpdateGroup(const UUID& id, const std::string& stateUpdateGroup) { stateUpdateGroups[id] = stateUpdateGroup; flagUpdated(id); }
+
 
     // CONVEX HULLS NEW
 

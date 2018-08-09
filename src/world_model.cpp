@@ -43,6 +43,14 @@ void WorldModel::update(const UpdateRequest& req)
         }
     }
 
+    // Update stateUpdateGroup
+    for(std::map<UUID, std::string>::const_iterator it = req.stateUpdateGroups.begin(); it != req.stateUpdateGroups.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setStateUpdateGroup(it->second);
+    }
+
+    // Update pmzcs
     for(std::map<UUID, ed::PMZCConstPtr>::const_iterator it = req.pmzcs.begin(); it != req.pmzcs.end(); ++it)
     {
         EntityPtr e = getOrAddEntity(it->first, new_entities);

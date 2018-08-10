@@ -28,7 +28,11 @@ Entity::Entity(const UUID& id, const TYPE& type, const unsigned int& measurement
     has_pose_(false),
     pose_(geo::Pose3D::identity()),
     pmzc_(ed::PMZCConstPtr()),
-    stateUpdateGroup_("")
+    has_state_definition_(false),
+    stateDefinition_(ed::StateDefinitionConstPtr()),
+    stateUpdateGroup_(""),
+    has_original_pose_(false),
+    originalPose_(geo::Pose3D::identity())
 {
 }
 

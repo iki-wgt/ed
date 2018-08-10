@@ -50,11 +50,25 @@ void WorldModel::update(const UpdateRequest& req)
         e->setStateUpdateGroup(it->second);
     }
 
+    // Update originalPose
+    for(std::map<UUID, geo::Pose3D>::const_iterator it = req.originalPoses.begin(); it != req.originalPoses.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setOriginalPose(it->second);
+    }
+
     // Update pmzcs
     for(std::map<UUID, ed::PMZCConstPtr>::const_iterator it = req.pmzcs.begin(); it != req.pmzcs.end(); ++it)
     {
         EntityPtr e = getOrAddEntity(it->first, new_entities);
         e->setPMZC(it->second);
+    }
+
+    // Update stateDefinitions
+    for(std::map<UUID, ed::StateDefinitionConstPtr>::const_iterator it = req.stateDefinitions.begin(); it != req.stateDefinitions.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setStateDefinition(it->second);
     }
 
     // Update poses

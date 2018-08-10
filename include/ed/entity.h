@@ -15,6 +15,7 @@
 #include "ed/property_key.h"
 
 #include "ed/PMZC.h"
+#include "ed/stateDefinition.h"
 
 #include "ed/logging.h"
 
@@ -108,6 +109,19 @@ public:
     }
 
 
+    inline bool has_state_definition() const { return has_state_definition_; }
+
+    inline void setStateDefinition(const ed::StateDefinitionConstPtr& stateDefinition)
+    {
+        has_state_definition_ = true;
+        stateDefinition_ = stateDefinition;
+    }
+
+    inline const ed::StateDefinitionConstPtr& stateDefinition() const
+    {
+        return stateDefinition_;
+    }
+
     inline void setStateUpdateGroup(std::string stateUpdateGroup)
     {
         stateUpdateGroup_ = stateUpdateGroup;
@@ -116,6 +130,20 @@ public:
     inline const std::string& stateUpdateGroup() const
     {
         return stateUpdateGroup_;
+    }
+
+
+    inline bool has_original_pose() const { return has_original_pose_; }
+
+    inline void setOriginalPose(const geo::Pose3D& originalPose)
+    {
+        has_original_pose_ = true;
+        originalPose_ = originalPose;
+    }
+
+    inline const geo::Pose3D& originalPose() const
+    {
+        return originalPose_;
     }
 
 
@@ -264,8 +292,13 @@ private:
     geo::Pose3D pose_;
 
     ed::PMZCConstPtr pmzc_;
+    bool has_state_definition_;
+    ed::StateDefinitionConstPtr stateDefinition_;
 
     std::string stateUpdateGroup_;
+
+    bool has_original_pose_;
+    geo::Pose3D originalPose_;
 
 //    double creation_time_;
 

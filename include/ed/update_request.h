@@ -56,10 +56,20 @@ public:
     std::map<UUID, ed::PMZCConstPtr> pmzcs;
     void setPMZC(const UUID& id, const ed::PMZCConstPtr& pmzc) { pmzcs[id] = pmzc; flagUpdated(id); }
 
+    // StateDefinition
+
+    std::map<UUID, ed::StateDefinitionConstPtr> stateDefinitions;
+    void setStateDefinition(const UUID& id, const ed::StateDefinitionConstPtr& stateDefinition) { stateDefinitions[id] = stateDefinition; flagUpdated(id); }
+
     // STATEUPDATEGROUP
 
     std::map<UUID, std::string> stateUpdateGroups;
     void setStateUpdateGroup(const UUID& id, const std::string& stateUpdateGroup) { stateUpdateGroups[id] = stateUpdateGroup; flagUpdated(id); }
+
+    // ORIGINAL POSE
+
+    std::map<UUID, geo::Pose3D> originalPoses;
+    void setOriginalPose(const UUID& id, const geo::Pose3D& origialPose) { originalPoses[id] = origialPose; flagUpdated(id); }
 
 
     // CONVEX HULLS NEW

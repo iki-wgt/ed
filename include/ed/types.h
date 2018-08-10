@@ -62,6 +62,10 @@ class PMZC;
 typedef boost::shared_ptr<PMZC> PMZCPtr;
 typedef boost::shared_ptr<const PMZC> PMZCConstPtr;
 
+class StateDefinition;
+typedef boost::shared_ptr<StateDefinition> StateDefinitionPtr;
+typedef boost::shared_ptr<const StateDefinition> StateDefinitionConstPtr;
+
 class ConvexHull2D;
 class ImageMask;
 

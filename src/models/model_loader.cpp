@@ -165,6 +165,7 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, UpdateReques
 
 // ----------------------------------------------------------------------------------------------------
 
+
 bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& id_opt, const UUID& parent_id,
                          UpdateRequest& req, std::stringstream& error, const std::string& model_path,
                          const geo::Pose3D& pose_offset)
@@ -219,21 +220,7 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
     // Get pose
     if (r.readGroup("pose"))
     {
-        r.value("x", pose.t.x);
-        r.value("y", pose.t.y);
-        r.value("z", pose.t.z);
-
-        double roll = 0, pitch = 0, yaw = 0;
-        r.value("X", roll,  tue::config::OPTIONAL);
-        r.value("Y", pitch, tue::config::OPTIONAL);
-        r.value("Z", yaw,   tue::config::OPTIONAL);
-        r.value("roll",  roll,  tue::config::OPTIONAL);
-        r.value("pitch", pitch, tue::config::OPTIONAL);
-        r.value("yaw",   yaw,   tue::config::OPTIONAL);
-
-        // Set rotation
-        pose.R.setRPY(roll, pitch, yaw);
-
+        readPose(pose, r);
         r.endGroup();
     }
 
@@ -268,6 +255,7 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
+    // Read PMZC values to filter z values while calling /ed/kinect/state-update
     if (r.readGroup("PMZC"))
     {
         float min;
@@ -285,10 +273,56 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
+    // state-definition to define relevant parts of the pose to determine the state, works together with state-update-group
+    if (r.readGroup("state-definition"))
+    {
+        int angle;
+        r.value("angle", angle);
+        bool bA = angle == 0 ? false : true;
+
+        int position;
+        r.value("position", position);
+        bool bP = position == 0 ? false : true;
+
+        float adc;
+        r.value("angle-difference-close", adc);
+
+        float ado;
+        r.value("angle-difference-open", ado);
+
+        float pdc;
+        r.value("position-difference-close", pdc);
+
+        float pdo;
+        r.value("position-difference-open", pdo);
+
+        ed::StateDefinitionConstPtr stateDefinitionPtr =
+            ed::StateDefinitionConstPtr(new ed::StateDefinition(bA, bP, adc, ado, pdc, pdo));
+        req.setStateDefinition(id, stateDefinitionPtr);
+
+        r.endGroup();
+    }
+
     std::string stateUpdateGroup;
+    // if state-update-group, store the group and prepare the entity for /ed/kinect/state-update which also needs the original position
     if (r.value("state-update-group", stateUpdateGroup, tue::config::OPTIONAL))
     {
         req.setStateUpdateGroup(id, stateUpdateGroup);
+        // if original-pose inside YAML given read it, otherwise use pose value
+        geo::Pose3D origPose;
+        if (r.readGroup("original-pose"))
+        {
+            origPose = geo::Pose3D::identity();
+            readPose(origPose, r);
+            // move orig pose with the world
+            origPose = pose_offset * origPose;
+            r.endGroup();
+        }
+        else
+        {
+            origPose = geo::Pose3D(pose.R, pose.t);
+        }
+        req.setOriginalPose(id, origPose);
     }
 
     if (r.readArray("flags"))
@@ -306,6 +340,25 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
     req.addData(id, r.data());
 
     return true;
+}
+
+
+void ModelLoader::readPose(geo::Pose3D& pose, tue::config::Reader& r)
+{
+    r.value("x", pose.t.x);
+    r.value("y", pose.t.y);
+    r.value("z", pose.t.z);
+
+    double roll = 0, pitch = 0, yaw = 0;
+    r.value("X", roll,  tue::config::OPTIONAL);
+    r.value("Y", pitch, tue::config::OPTIONAL);
+    r.value("Z", yaw,   tue::config::OPTIONAL);
+    r.value("roll",  roll,  tue::config::OPTIONAL);
+    r.value("pitch", pitch, tue::config::OPTIONAL);
+    r.value("yaw",   yaw,   tue::config::OPTIONAL);
+
+    // Set rotation
+    pose.R.setRPY(roll, pitch, yaw);
 }
 
 } // end namespace models

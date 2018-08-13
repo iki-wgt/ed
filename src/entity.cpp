@@ -32,7 +32,9 @@ Entity::Entity(const UUID& id, const TYPE& type, const unsigned int& measurement
     stateDefinition_(ed::StateDefinitionConstPtr()),
     stateUpdateGroup_(""),
     has_original_pose_(false),
-    originalPose_(geo::Pose3D::identity())
+    originalPose_(geo::Pose3D::identity()),
+    has_move_restrictions_(false),
+    moveRestrictions_(ed::MoveRestrictionsConstPtr())
 {
 }
 

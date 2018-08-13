@@ -13,6 +13,7 @@
 #include <vector>
 #include <geolib/datatypes.h>
 #include "ed/PMZC.h"
+#include "ed/moveRestrictions.h"
 
 #include "ed/convex_hull_2d.h"
 #include "ed/convex_hull.h"
@@ -56,10 +57,17 @@ public:
     std::map<UUID, ed::PMZCConstPtr> pmzcs;
     void setPMZC(const UUID& id, const ed::PMZCConstPtr& pmzc) { pmzcs[id] = pmzc; flagUpdated(id); }
 
-    // StateDefinition
+    // STATEDEFINITION
 
     std::map<UUID, ed::StateDefinitionConstPtr> stateDefinitions;
     void setStateDefinition(const UUID& id, const ed::StateDefinitionConstPtr& stateDefinition) { stateDefinitions[id] = stateDefinition; flagUpdated(id); }
+
+
+    // MOVERESTRICTIONS
+
+    std::map<UUID, ed::MoveRestrictionsConstPtr> moveRestrictions;
+    void setMoveRestrictions(const UUID& id, const ed::MoveRestrictionsConstPtr& moveRestriction) { moveRestrictions[id] = moveRestriction; flagUpdated(id); }
+
 
     // STATEUPDATEGROUP
 

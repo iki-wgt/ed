@@ -303,6 +303,30 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
+    // state-definition to define relevant parts of the pose to determine the state, works together with state-update-group
+    if (r.readGroup("move-restricitons"))
+    {
+        int canRotate;
+        r.value("can-rotate", canRotate);
+        bool bR = canRotate == 0 ? false : true;
+
+        int canMove;
+        r.value("can-move", canMove);
+        bool bM = canMove == 0 ? false : true;
+
+        float x;
+        r.value("x", x);
+
+        float y;
+        r.value("y", y);
+
+        ed::MoveRestrictionsConstPtr moveRestrictionsPtr =
+            ed::MoveRestrictionsConstPtr(new ed::MoveRestrictions(bR, bM, x, y));
+        req.setMoveRestrictions(id, moveRestrictionsPtr);
+
+        r.endGroup();
+    }
+
     std::string stateUpdateGroup;
     // if state-update-group, store the group and prepare the entity for /ed/kinect/state-update which also needs the original position
     if (r.value("state-update-group", stateUpdateGroup, tue::config::OPTIONAL))

@@ -71,6 +71,13 @@ void WorldModel::update(const UpdateRequest& req)
         e->setStateDefinition(it->second);
     }
 
+    // Update moveRestrictions
+    for(std::map<UUID, ed::MoveRestrictionsConstPtr>::const_iterator it = req.moveRestrictions.begin(); it != req.moveRestrictions.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setMoveRestrictions(it->second);
+    }
+
     // Update poses
     for(std::map<UUID, geo::Pose3D>::const_iterator it = req.poses.begin(); it != req.poses.end(); ++it)
     {

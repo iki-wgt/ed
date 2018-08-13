@@ -16,6 +16,7 @@
 
 #include "ed/PMZC.h"
 #include "ed/stateDefinition.h"
+#include "ed/moveRestrictions.h"
 
 #include "ed/logging.h"
 
@@ -146,6 +147,19 @@ public:
         return originalPose_;
     }
 
+
+    inline bool has_move_restrictions() const { return has_move_restrictions_; }
+
+    inline void setMoveRestrictions(const ed::MoveRestrictionsConstPtr& moveRestrictions)
+    {
+        has_move_restrictions_ = true;
+        moveRestrictions_ = moveRestrictions;
+    }
+
+    inline const ed::MoveRestrictionsConstPtr& moveRestrictions() const
+    {
+        return moveRestrictions_;
+    }
 
     inline const tue::config::DataConstPointer& data() const { return config_; }
     inline void setData(const tue::config::DataConstPointer& data) { config_ = data; }
@@ -299,6 +313,9 @@ private:
 
     bool has_original_pose_;
     geo::Pose3D originalPose_;
+
+    bool has_move_restrictions_;
+    ed::MoveRestrictionsConstPtr moveRestrictions_;
 
 //    double creation_time_;
 

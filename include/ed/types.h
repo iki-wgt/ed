@@ -66,6 +66,10 @@ class StateDefinition;
 typedef boost::shared_ptr<StateDefinition> StateDefinitionPtr;
 typedef boost::shared_ptr<const StateDefinition> StateDefinitionConstPtr;
 
+class MoveRestrictions;
+typedef boost::shared_ptr<MoveRestrictions> MoveRestrictionsPtr;
+typedef boost::shared_ptr<const MoveRestrictions> MoveRestrictionsConstPtr;
+
 class ConvexHull2D;
 class ImageMask;
 

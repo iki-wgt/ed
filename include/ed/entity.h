@@ -99,8 +99,11 @@ public:
     inline bool has_pose() const { return has_pose_; }
 
 
+    inline bool has_pmzc() const { return has_pmzc_; }
+
     inline void setPMZC(const ed::PMZCConstPtr& pmzc)
     {
+        has_pmzc_ = true;
         pmzc_ = pmzc;
     }
 
@@ -305,6 +308,7 @@ private:
     bool has_pose_;
     geo::Pose3D pose_;
 
+    bool has_pmzc_;
     ed::PMZCConstPtr pmzc_;
     bool has_state_definition_;
     ed::StateDefinitionConstPtr stateDefinition_;

@@ -57,11 +57,11 @@ void WorldModel::update(const UpdateRequest& req)
         e->setOriginalPose(it->second);
     }
 
-    // Update pmzcs
-    for(std::map<UUID, ed::PMZCConstPtr>::const_iterator it = req.pmzcs.begin(); it != req.pmzcs.end(); ++it)
+    // Update rois
+    for(std::map<UUID, ed::ROIConstPtr>::const_iterator it = req.rois.begin(); it != req.rois.end(); ++it)
     {
         EntityPtr e = getOrAddEntity(it->first, new_entities);
-        e->setPMZC(it->second);
+        e->setROI(it->second);
     }
 
     // Update stateDefinitions

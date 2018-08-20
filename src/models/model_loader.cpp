@@ -255,8 +255,8 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
-    // Read PMZC values to filter z values while calling /ed/kinect/state-update
-    if (r.readGroup("PMZC"))
+    // Read ROI values to filter z values while calling /ed/kinect/state-update
+    if (r.readGroup("ROI"))
     {
         float min;
         r.value("min", min);
@@ -267,8 +267,8 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         int include;
         r.value("include", include);
 
-        ed::PMZCConstPtr pmczPtr = ed::PMZCConstPtr(new ed::PMZC(min, max, include == 0 ? false : true));
-        req.setPMZC(id, pmczPtr);
+        ed::ROIConstPtr pmczPtr = ed::ROIConstPtr(new ed::ROI(min, max, include == 0 ? false : true));
+        req.setROI(id, pmczPtr);
 
         r.endGroup();
     }

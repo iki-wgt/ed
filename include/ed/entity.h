@@ -14,7 +14,7 @@
 #include "ed/property.h"
 #include "ed/property_key.h"
 
-#include "ed/PMZC.h"
+#include "ed/ROI.h"
 #include "ed/stateDefinition.h"
 #include "ed/moveRestrictions.h"
 
@@ -99,17 +99,17 @@ public:
     inline bool has_pose() const { return has_pose_; }
 
 
-    inline bool has_pmzc() const { return has_pmzc_; }
+    inline bool has_roi() const { return has_roi_; }
 
-    inline void setPMZC(const ed::PMZCConstPtr& pmzc)
+    inline void setROI(const ed::ROIConstPtr& roi)
     {
-        has_pmzc_ = true;
-        pmzc_ = pmzc;
+        has_roi_ = true;
+        roi_ = roi;
     }
 
-    inline const ed::PMZCConstPtr& PMZC() const
+    inline const ed::ROIConstPtr& ROI() const
     {
-        return pmzc_;
+        return roi_;
     }
 
 
@@ -308,8 +308,8 @@ private:
     bool has_pose_;
     geo::Pose3D pose_;
 
-    bool has_pmzc_;
-    ed::PMZCConstPtr pmzc_;
+    bool has_roi_;
+    ed::ROIConstPtr roi_;
     bool has_state_definition_;
     ed::StateDefinitionConstPtr stateDefinition_;
 

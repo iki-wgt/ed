@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 #include <geolib/datatypes.h>
-#include "ed/PMZC.h"
+#include "ed/ROI.h"
 #include "ed/moveRestrictions.h"
 
 #include "ed/convex_hull_2d.h"
@@ -52,10 +52,10 @@ public:
     std::map<UUID, geo::ShapeConstPtr> shapes;
     void setShape(const UUID& id, const geo::ShapeConstPtr& shape) { shapes[id] = shape; flagUpdated(id); }
 
-    // PMZC
+    // ROI
 
-    std::map<UUID, ed::PMZCConstPtr> pmzcs;
-    void setPMZC(const UUID& id, const ed::PMZCConstPtr& pmzc) { pmzcs[id] = pmzc; flagUpdated(id); }
+    std::map<UUID, ed::ROIConstPtr> rois;
+    void setROI(const UUID& id, const ed::ROIConstPtr& roi) { rois[id] = roi; flagUpdated(id); }
 
     // STATEDEFINITION
 

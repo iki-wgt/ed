@@ -58,9 +58,9 @@ class Relation;
 typedef boost::shared_ptr<Relation> RelationPtr;
 typedef boost::shared_ptr<const Relation> RelationConstPtr;
 
-class PMZC;
-typedef boost::shared_ptr<PMZC> PMZCPtr;
-typedef boost::shared_ptr<const PMZC> PMZCConstPtr;
+class ROI;
+typedef boost::shared_ptr<ROI> ROIPtr;
+typedef boost::shared_ptr<const ROI> ROIConstPtr;
 
 class StateDefinition;
 typedef boost::shared_ptr<StateDefinition> StateDefinitionPtr;

@@ -1,5 +1,7 @@
 #include "ed/models/model_loader.h"
 
+#include <ros/console.h>
+
 #include "ed/update_request.h"
 #include "ed/entity.h"
 #include "ed/relations/transform_cache.h"
@@ -13,7 +15,6 @@
 #include <tue/config/configuration.h>
 
 #include <sstream>
-
 #include <iostream>
 
 namespace ed
@@ -255,77 +256,99 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
-    // Read ROI values to filter z values while calling /ed/kinect/state-update
-    if (r.readGroup("ROI"))
+    if (r.readGroup("state_update"))
     {
-        float min;
-        r.value("min", min);
+        // Read ROI values to filter z values while calling /ed/kinect/state-update
+        if (r.readGroup("ROI"))
+        {
+            float min;
+            float max;
+            std::string mode = "include";
 
-        float max;
-        r.value("max", max);
+            r.value("z_min", min);
+            r.value("z_max", max);
+            r.value("mode", mode ,tue::config::OPTIONAL);
 
-        int include;
-        r.value("include", include);
+            ed::ROIConstPtr roiPtr = ed::ROIConstPtr(new ed::ROI(min, max, mode == "include" ? true : false));
+            req.setROI(id, roiPtr);
+            std::cout << id << " ROI min:" << min << " max:" << max << " mode:" << mode << std::endl;
+            r.endGroup();
+        }
+        // Read movement freedoms/restrictions to align to main group object while calling /ed/kinect/state-update
+        if (r.readGroup("degrees_of_freedom"))
+        {
 
-        ed::ROIConstPtr pmczPtr = ed::ROIConstPtr(new ed::ROI(min, max, include == 0 ? false : true));
-        req.setROI(id, pmczPtr);
+            bool canRotate = false;
+            bool canMove = false;
+            std::string cur_str = "";
+            r.value("rotation", cur_str,  tue::config::OPTIONAL);
+            if(cur_str == "true" || cur_str == "" )
+            {
+              canRotate = true;
+            }
+            cur_str = "";
+            r.value("translation", cur_str,  tue::config::OPTIONAL);
+            if(cur_str == "true" || cur_str == "" )
+            {
+              canMove = true;
+            }
 
+            float x = 0;
+            float y = 0;
+            if (r.readGroup("translation_restriction"))
+            {
+                r.value("x", x);
+                r.value("y", y);
+
+                if( x == 0 and y == 0)
+                {
+                  if(canMove == true)
+                  {
+                    ROS_WARN("inside the definition of: %s , translation is allowed but translation_restriction set to fixed position, possible error inside Yaml" ,id.c_str());
+                    canMove = false;
+                  }
+                }
+                else
+                {
+                  if(canMove == false)
+                    ROS_WARN("inside the definition of: %s , translation is forbidden but translation_restriction set direction Vector, possible error inside Yaml" ,id.c_str());
+
+                }
+                r.endGroup();
+            }
+
+
+            ed::MoveRestrictionsConstPtr moveRestrictionsPtr =
+                ed::MoveRestrictionsConstPtr(new ed::MoveRestrictions(canRotate, canMove, x, y));
+            req.setMoveRestrictions(id, moveRestrictionsPtr);
+            std::cout << id << " freedoms x:" << x << " y:" << y  << " rotate:" << canRotate << " move:" << canMove << std::endl;
+            r.endGroup();
+        }
+
+        // Read states for get-state request
+        if (r.readGroup("state_definitions"))
+        {
+            float close;
+            float open;
+            std::string mode;
+
+            r.value("close", close);
+            r.value("open", open);
+            r.value("mode", mode);
+
+            bool angle = mode == "angle" ? true : false;
+            bool position = !angle;
+
+            ed::StateDefinitionConstPtr stateDefinitionPtr =
+                ed::StateDefinitionConstPtr(new ed::StateDefinition(angle, position, close, open, close, open));
+            req.setStateDefinition(id, stateDefinitionPtr);
+
+            std::cout << id << " state_definitions close:" << close << " open:" << open << " mode:" << mode << std::endl;
+            r.endGroup();
+        }
         r.endGroup();
     }
 
-    // state-definition to define relevant parts of the pose to determine the state, works together with state-update-group
-    if (r.readGroup("state-definition"))
-    {
-        int angle;
-        r.value("angle", angle);
-        bool bA = angle == 0 ? false : true;
-
-        int position;
-        r.value("position", position);
-        bool bP = position == 0 ? false : true;
-
-        float adc;
-        r.value("angle-difference-close", adc);
-
-        float ado;
-        r.value("angle-difference-open", ado);
-
-        float pdc;
-        r.value("position-difference-close", pdc);
-
-        float pdo;
-        r.value("position-difference-open", pdo);
-
-        ed::StateDefinitionConstPtr stateDefinitionPtr =
-            ed::StateDefinitionConstPtr(new ed::StateDefinition(bA, bP, adc, ado, pdc, pdo));
-        req.setStateDefinition(id, stateDefinitionPtr);
-
-        r.endGroup();
-    }
-
-    // state-definition to define relevant parts of the pose to determine the state, works together with state-update-group
-    if (r.readGroup("move-restricitons"))
-    {
-        int canRotate;
-        r.value("can-rotate", canRotate);
-        bool bR = canRotate == 0 ? false : true;
-
-        int canMove;
-        r.value("can-move", canMove);
-        bool bM = canMove == 0 ? false : true;
-
-        float x;
-        r.value("x", x);
-
-        float y;
-        r.value("y", y);
-
-        ed::MoveRestrictionsConstPtr moveRestrictionsPtr =
-            ed::MoveRestrictionsConstPtr(new ed::MoveRestrictions(bR, bM, x, y));
-        req.setMoveRestrictions(id, moveRestrictionsPtr);
-
-        r.endGroup();
-    }
 
     std::string stateUpdateGroup;
     // if state-update-group, store the group and prepare the entity for /ed/kinect/state-update which also needs the original position

@@ -1,5 +1,7 @@
 #include "ed/models/model_loader.h"
 
+#include <ros/console.h>
+
 #include "ed/update_request.h"
 #include "ed/entity.h"
 #include "ed/relations/transform_cache.h"
@@ -13,6 +15,7 @@
 #include <tue/config/configuration.h>
 
 #include <sstream>
+#include <iostream>
 
 namespace ed
 {
@@ -163,6 +166,7 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, UpdateReques
 
 // ----------------------------------------------------------------------------------------------------
 
+
 bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& id_opt, const UUID& parent_id,
                          UpdateRequest& req, std::stringstream& error, const std::string& model_path,
                          const geo::Pose3D& pose_offset)
@@ -217,21 +221,7 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
     // Get pose
     if (r.readGroup("pose"))
     {
-        r.value("x", pose.t.x);
-        r.value("y", pose.t.y);
-        r.value("z", pose.t.z);
-
-        double roll = 0, pitch = 0, yaw = 0;
-        r.value("X", roll,  tue::config::OPTIONAL);
-        r.value("Y", pitch, tue::config::OPTIONAL);
-        r.value("Z", yaw,   tue::config::OPTIONAL);
-        r.value("roll",  roll,  tue::config::OPTIONAL);
-        r.value("pitch", pitch, tue::config::OPTIONAL);
-        r.value("yaw",   yaw,   tue::config::OPTIONAL);
-
-        // Set rotation
-        pose.R.setRPY(roll, pitch, yaw);
-
+        readPose(pose, r);
         r.endGroup();
     }
 
@@ -266,6 +256,122 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
         r.endGroup();
     }
 
+    if (r.readGroup("state_update"))
+    {
+        // Read ROI values to filter z values while calling /ed/kinect/state-update
+        if (r.readGroup("ROI"))
+        {
+            float min;
+            float max;
+            std::string mode = "include";
+
+            r.value("z_min", min);
+            r.value("z_max", max);
+            r.value("mode", mode ,tue::config::OPTIONAL);
+
+            ed::ROIConstPtr roiPtr = ed::ROIConstPtr(new ed::ROI(min, max, mode == "include" ? true : false));
+            req.setROI(id, roiPtr);
+            std::cout << id << " ROI min:" << min << " max:" << max << " mode:" << mode << std::endl;
+            r.endGroup();
+        }
+        // Read movement freedoms/restrictions to align to main group object while calling /ed/kinect/state-update
+        if (r.readGroup("degrees_of_freedom"))
+        {
+
+            bool canRotate = false;
+            bool canMove = false;
+            std::string cur_str = "";
+            r.value("rotation", cur_str,  tue::config::OPTIONAL);
+            if(cur_str == "true" || cur_str == "" )
+            {
+              canRotate = true;
+            }
+            cur_str = "";
+            r.value("translation", cur_str,  tue::config::OPTIONAL);
+            if(cur_str == "true" || cur_str == "" )
+            {
+              canMove = true;
+            }
+
+            float x = 0;
+            float y = 0;
+            if (r.readGroup("translation_restriction"))
+            {
+                r.value("x", x);
+                r.value("y", y);
+
+                if( x == 0 and y == 0)
+                {
+                  if(canMove == true)
+                  {
+                    ROS_WARN("inside the definition of: %s , translation is allowed but translation_restriction set to fixed position, possible error inside Yaml" ,id.c_str());
+                    canMove = false;
+                  }
+                }
+                else
+                {
+                  if(canMove == false)
+                    ROS_WARN("inside the definition of: %s , translation is forbidden but translation_restriction set direction Vector, possible error inside Yaml" ,id.c_str());
+
+                }
+                r.endGroup();
+            }
+
+
+            ed::MoveRestrictionsConstPtr moveRestrictionsPtr =
+                ed::MoveRestrictionsConstPtr(new ed::MoveRestrictions(canRotate, canMove, x, y));
+            req.setMoveRestrictions(id, moveRestrictionsPtr);
+            std::cout << id << " freedoms x:" << x << " y:" << y  << " rotate:" << canRotate << " move:" << canMove << std::endl;
+            r.endGroup();
+        }
+
+        // Read states for get-state request
+        if (r.readGroup("state_definitions"))
+        {
+            float close;
+            float open;
+            std::string mode;
+
+            r.value("close", close);
+            r.value("open", open);
+            r.value("mode", mode);
+
+            bool angle = mode == "angle" ? true : false;
+            bool position = !angle;
+
+            ed::StateDefinitionConstPtr stateDefinitionPtr =
+                ed::StateDefinitionConstPtr(new ed::StateDefinition(angle, position, close, open, close, open));
+            req.setStateDefinition(id, stateDefinitionPtr);
+
+            std::cout << id << " state_definitions close:" << close << " open:" << open << " mode:" << mode << std::endl;
+            r.endGroup();
+        }
+        r.endGroup();
+    }
+
+
+    std::string stateUpdateGroup;
+    // if state-update-group, store the group and prepare the entity for /ed/kinect/state-update which also needs the original position
+    if (r.value("state-update-group", stateUpdateGroup, tue::config::OPTIONAL))
+    {
+        req.setStateUpdateGroup(id, stateUpdateGroup);
+        // if original-pose inside YAML given read it, otherwise use pose value
+        geo::Pose3D origPose;
+        if (r.readGroup("original-pose"))
+        {
+            origPose = geo::Pose3D::identity();
+            readPose(origPose, r);
+            // move orig pose with the world
+            origPose = pose_offset * origPose;
+            r.endGroup();
+        }
+        else
+        {
+            origPose = geo::Pose3D(pose.R, pose.t);
+        }
+        req.setOriginalPose(id, origPose);
+    }
+
     if (r.readArray("flags"))
     {
         while (r.nextArrayItem())
@@ -283,7 +389,25 @@ bool ModelLoader::create(const tue::config::DataConstPointer& data, const UUID& 
     return true;
 }
 
+
+void ModelLoader::readPose(geo::Pose3D& pose, tue::config::Reader& r)
+{
+    r.value("x", pose.t.x);
+    r.value("y", pose.t.y);
+    r.value("z", pose.t.z);
+
+    double roll = 0, pitch = 0, yaw = 0;
+    r.value("X", roll,  tue::config::OPTIONAL);
+    r.value("Y", pitch, tue::config::OPTIONAL);
+    r.value("Z", yaw,   tue::config::OPTIONAL);
+    r.value("roll",  roll,  tue::config::OPTIONAL);
+    r.value("pitch", pitch, tue::config::OPTIONAL);
+    r.value("yaw",   yaw,   tue::config::OPTIONAL);
+
+    // Set rotation
+    pose.R.setRPY(roll, pitch, yaw);
+}
+
 } // end namespace models
 
 } // end namespace ed
-

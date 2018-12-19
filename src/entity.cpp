@@ -26,7 +26,16 @@ Entity::Entity(const UUID& id, const TYPE& type, const unsigned int& measurement
     shape_revision_(0),
 //    creation_time_(creation_time),
     has_pose_(false),
-    pose_(geo::Pose3D::identity())
+    pose_(geo::Pose3D::identity()),
+    has_roi_(false),
+    roi_(ed::ROIConstPtr()),
+    has_state_definition_(false),
+    stateDefinition_(ed::StateDefinitionConstPtr()),
+    stateUpdateGroup_(""),
+    has_original_pose_(false),
+    originalPose_(geo::Pose3D::identity()),
+    has_move_restrictions_(false),
+    moveRestrictions_(ed::MoveRestrictionsConstPtr())
 {
 }
 

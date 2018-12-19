@@ -12,6 +12,8 @@
 #include <map>
 #include <vector>
 #include <geolib/datatypes.h>
+#include "ed/ROI.h"
+#include "ed/moveRestrictions.h"
 
 #include "ed/convex_hull_2d.h"
 #include "ed/convex_hull.h"
@@ -50,7 +52,32 @@ public:
     std::map<UUID, geo::ShapeConstPtr> shapes;
     void setShape(const UUID& id, const geo::ShapeConstPtr& shape) { shapes[id] = shape; flagUpdated(id); }
 
+    // ROI
 
+    std::map<UUID, ed::ROIConstPtr> rois;
+    void setROI(const UUID& id, const ed::ROIConstPtr& roi) { rois[id] = roi; flagUpdated(id); }
+
+    // STATEDEFINITION
+
+    std::map<UUID, ed::StateDefinitionConstPtr> stateDefinitions;
+    void setStateDefinition(const UUID& id, const ed::StateDefinitionConstPtr& stateDefinition) { stateDefinitions[id] = stateDefinition; flagUpdated(id); }
+
+
+    // MOVERESTRICTIONS
+
+    std::map<UUID, ed::MoveRestrictionsConstPtr> moveRestrictions;
+    void setMoveRestrictions(const UUID& id, const ed::MoveRestrictionsConstPtr& moveRestriction) { moveRestrictions[id] = moveRestriction; flagUpdated(id); }
+
+
+    // STATEUPDATEGROUP
+
+    std::map<UUID, std::string> stateUpdateGroups;
+    void setStateUpdateGroup(const UUID& id, const std::string& stateUpdateGroup) { stateUpdateGroups[id] = stateUpdateGroup; flagUpdated(id); }
+
+    // ORIGINAL POSE
+
+    std::map<UUID, geo::Pose3D> originalPoses;
+    void setOriginalPose(const UUID& id, const geo::Pose3D& origialPose) { originalPoses[id] = origialPose; flagUpdated(id); }
 
 
     // CONVEX HULLS NEW

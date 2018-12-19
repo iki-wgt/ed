@@ -9,6 +9,8 @@
 
 #include "ed/property_key_db.h"
 
+#include "ed/types.h"
+
 namespace ed
 {
 
@@ -39,6 +41,41 @@ void WorldModel::update(const UpdateRequest& req)
         {
             e->addMeasurement(*it2);
         }
+    }
+
+    // Update stateUpdateGroup
+    for(std::map<UUID, std::string>::const_iterator it = req.stateUpdateGroups.begin(); it != req.stateUpdateGroups.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setStateUpdateGroup(it->second);
+    }
+
+    // Update originalPose
+    for(std::map<UUID, geo::Pose3D>::const_iterator it = req.originalPoses.begin(); it != req.originalPoses.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setOriginalPose(it->second);
+    }
+
+    // Update rois
+    for(std::map<UUID, ed::ROIConstPtr>::const_iterator it = req.rois.begin(); it != req.rois.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setROI(it->second);
+    }
+
+    // Update stateDefinitions
+    for(std::map<UUID, ed::StateDefinitionConstPtr>::const_iterator it = req.stateDefinitions.begin(); it != req.stateDefinitions.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setStateDefinition(it->second);
+    }
+
+    // Update moveRestrictions
+    for(std::map<UUID, ed::MoveRestrictionsConstPtr>::const_iterator it = req.moveRestrictions.begin(); it != req.moveRestrictions.end(); ++it)
+    {
+        EntityPtr e = getOrAddEntity(it->first, new_entities);
+        e->setMoveRestrictions(it->second);
     }
 
     // Update poses
@@ -447,5 +484,3 @@ const PropertyKeyDBEntry* WorldModel::getPropertyInfo(const std::string& name) c
 }
 
 }
-
-

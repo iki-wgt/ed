@@ -14,6 +14,10 @@
 #include "ed/property.h"
 #include "ed/property_key.h"
 
+#include "ed/ROI.h"
+#include "ed/stateDefinition.h"
+#include "ed/moveRestrictions.h"
+
 #include "ed/logging.h"
 
 #include "ed/measurement_convex_hull.h"
@@ -93,6 +97,72 @@ public:
     }
 
     inline bool has_pose() const { return has_pose_; }
+
+
+    inline bool has_roi() const { return has_roi_; }
+
+    inline void setROI(const ed::ROIConstPtr& roi)
+    {
+        has_roi_ = true;
+        roi_ = roi;
+    }
+
+    inline const ed::ROIConstPtr& ROI() const
+    {
+        return roi_;
+    }
+
+
+    inline bool has_state_definition() const { return has_state_definition_; }
+
+    inline void setStateDefinition(const ed::StateDefinitionConstPtr& stateDefinition)
+    {
+        has_state_definition_ = true;
+        stateDefinition_ = stateDefinition;
+    }
+
+    inline const ed::StateDefinitionConstPtr& stateDefinition() const
+    {
+        return stateDefinition_;
+    }
+
+    inline void setStateUpdateGroup(std::string stateUpdateGroup)
+    {
+        stateUpdateGroup_ = stateUpdateGroup;
+    }
+
+    inline const std::string& stateUpdateGroup() const
+    {
+        return stateUpdateGroup_;
+    }
+
+
+    inline bool has_original_pose() const { return has_original_pose_; }
+
+    inline void setOriginalPose(const geo::Pose3D& originalPose)
+    {
+        has_original_pose_ = true;
+        originalPose_ = originalPose;
+    }
+
+    inline const geo::Pose3D& originalPose() const
+    {
+        return originalPose_;
+    }
+
+
+    inline bool has_move_restrictions() const { return has_move_restrictions_; }
+
+    inline void setMoveRestrictions(const ed::MoveRestrictionsConstPtr& moveRestrictions)
+    {
+        has_move_restrictions_ = true;
+        moveRestrictions_ = moveRestrictions;
+    }
+
+    inline const ed::MoveRestrictionsConstPtr& moveRestrictions() const
+    {
+        return moveRestrictions_;
+    }
 
     inline const tue::config::DataConstPointer& data() const { return config_; }
     inline void setData(const tue::config::DataConstPointer& data) { config_ = data; }
@@ -237,6 +307,19 @@ private:
 
     bool has_pose_;
     geo::Pose3D pose_;
+
+    bool has_roi_;
+    ed::ROIConstPtr roi_;
+    bool has_state_definition_;
+    ed::StateDefinitionConstPtr stateDefinition_;
+
+    std::string stateUpdateGroup_;
+
+    bool has_original_pose_;
+    geo::Pose3D originalPose_;
+
+    bool has_move_restrictions_;
+    ed::MoveRestrictionsConstPtr moveRestrictions_;
 
 //    double creation_time_;
 

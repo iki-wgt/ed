@@ -7,6 +7,8 @@
 #include <geolib/datatypes.h>
 #include <tue/config/data_pointer.h>
 
+#include <tue/config/reader.h>
+
 namespace ed
 {
 
@@ -47,6 +49,8 @@ private:
     tue::config::DataConstPointer loadModelData(const std::string& type, std::vector<std::string>& types, std::stringstream& error);
 
     std::string getModelPath(const std::string& type) const;
+
+    void readPose(geo::Pose3D& pose, tue::config::Reader& r);
 
 };
 

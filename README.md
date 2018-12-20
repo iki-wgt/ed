@@ -1,81 +1,127 @@
-ED : Environment Descriptor [![Build Status](https://travis-ci.org/tue-robotics/ed.svg?branch=master)](https://travis-ci.org/tue-robotics/ed)
-======
+# ED submodel_states
+This repository extends the modeling features of [ED](https://github.com/tue-robotics/ed)
+with additional parameters.
 
-## Introduction
+## Getting started
+``` shell
+# Get dependencies for ed (see: https://github.com/tue-robotics/ed#Installation)
+sudo apt-get install ros-kinetic-geometry-msgs ros-kinetic-pcl-ros ros-kinetic-message-filters ros-kinetic-image-geometry ros-kinetic-kdl-parser ros-kinetic-roslib ros-kinetic-std-srvs libyaml-cpp-dev ros-kinetic-cv-bridge ros-kinetic-tf libassimp-dev ros-kinetic-message-generation ros-kinetic-roscpp ros-kinetic-message-runtime ros-kinetic-class-loader
 
-ED - Environment Description - is a 3D geometric, object-based world representation system for robots. At the moment different ED modules exist which enable robots to localize themselves, update positions of known objects based on recent sensor data, segment and store newly encountered objects and visualize all this through a web-based GUI.
 
-### Tutorials
+# Move to catkin workspace
+roscd; cd ../src;
 
-All ED tutorials can be found in the ed_tutorials package: https://github.com/tue-robotics/ed_tutorials
+# Fetch dependencies
+git clone https://github.com/iki-wgt/ed.git
+cd ed; git checkout submodel_states; cd ..
+git clone https://github.com/tue-robotics/ed_object_models.git
+git clone https://github.com/tue-robotics/ed_msgs.git
+git clone https://github.com/tue-robotics/code_profiler.git
+git clone https://github.com/tue-robotics/geolib2.git
+git clone https://github.com/tue-robotics/rgbd.git
+git clone https://github.com/tue-robotics/tue_config.git
+git clone https://github.com/tue-robotics/tue_filesystem.git
+git clone https://github.com/tue-robotics/tue_serialization.git
+git clone https://github.com/iki-wgt/ed_sensor_integration.git
+cd ed_sensor_integration; git checkout submodel_states; cd ..
 
-### Why use ED?
+# Move to catkin and start build
+roscd; cd ..; catkin_make
+```
 
-* ED is **one re-usable environment description** that can be used for a multitude of needed functionalities. Instead of having different environment representations for localization, navigation, manipulation, interaction, etc, you now only need *one*. An improvement in this single, central world model will reflect in the performances of the separate robot capabilities.
-* ED is an **object-based, geometrical world representation**. As opposed to occupancy grids, octomaps, high-density monolithic meshes and the like, ED allows the user to use object-based, semantic statements such as 'inspect the objects on top of the table' or to 'navigate to the couch', while the geometrical representation allows the robot to still avoid obstacles - known and unknown - that it encounters on its path.
-* The world geometry and objects can easily be specified with a set of easily accessible **human-readable files, re-usable models, heightmaps, primitives**, etc.
-* ED has a **plugin system**. In itself, ED is 'just' a data structure containing a world representation. Functionality is added through plugins, which run concurrently and query and update the world model in a thread-safe manner. This makes the system **easily extendable**.
-* ED's default **localization** module consists of a fast particle filter implementation and sensor models which always take into account the most recent state of the world. This means that if the world representation improves while the robot is running, localization becomes better. The localization module is more efficient and accurate than the well-known [AMCL-module](http://wiki.ros.org/amcl) and *no* separate occupancy grid is needed.
-* The *sensor_integration* module enables **object updates**: using data from a depth sensor such as the Kinect, positions of known objects, such as pieces of furniture, can be updated. This allows the robot to successfully interact with its environment, even if the world model specified by the user contains errors.
-* The *sensor_integration* module also enables **object segmentation**: the geometrical knowledge about the world enables fast, reliable and efficient object segmentation. This enables the robot to "find all objects on top of the table" or "inside the cabinet".
-* Though not yet released, ED has modules for **real-time, on-line generation of costmaps** that can be used directly by existing **navigation modules** such as [MoveBase](http://wiki.ros.org/move_base). Whenever the world model representation changes, the costmaps will instantly reflect the change.
-* ED can be visualized using a **web-based GUI**. This enables users to monitor the state of the world using a large variety of systems, including PC's, smart phones and tablets.
+## External dependencies
+- [ed (Branch submodel_states)](https://github.com/iki-wgt/ed/tree/submodel_states)
+- [ed_sensor_integration (Branch submodel_states)](https://github.com/iki-wgt/ed_sensor_integration/tree/submodel_states)
+- [ed_object_models](https://github.com/tue-robotics/ed_object_models.git)  
+- [ed_msgs](https://github.com/tue-robotics/ed_msgs.git)  
+- [code_profiler](https://github.com/tue-robotics/code_profiler.git)  
+- [geolib2](https://github.com/tue-robotics/geolib2.git)  
+- [rgbd](https://github.com/tue-robotics/rgbd.git)  
+- [tue_config](https://github.com/tue-robotics/tue_config.git)  
+- [tue_filesystem](https://github.com/tue-robotics/tue_filesystem.git)  
+- [tue_serialization](https://github.com/tue-robotics/tue_serialization.git)  
 
-![](https://cdn.rawgit.com/tue-robotics/ed/master/docs/images/wm.svg)
-*ED Overview*
+## Build dependencies
+ - No Dockerfile
 
-## Installation
+## Run dependencies
+ - Working ED_Config.yaml [(see ed tutorial)](https://github.com/tue-robotics/ed_tutorials)
+ - Working ED_Model.yaml [(see ed tutorial)](https://github.com/tue-robotics/ed_tutorials)
 
-Requirements:
-* Ubuntu (12.04 or newer)
-* ROS (Hydro or newer)
+## Additional parameters to ed
 
-We assume you have successfully installed ROS and set-up a Catkin workspace. Check out the following packages in your workspace:
+Adds additional optional parameters to default ed model yaml files. These additional parameters are used by the [ed_sensor_integration package on the branch (submodel_states)](https://github.com/iki-wgt/ed/tree/submodel_states)
 
-    cd <your_catkin_workspace>/src
+Super_model_of_a_thing.yaml:
+``` yaml
+composition:
+- id: main_part_id
+  type: thing/main_part
+  pose: { x: 0.0, y: 0.0, z: 0}
+  state-update-group: group_name_xyz
+  flags:
+    - flag: state-update-group-main
 
-    git clone https://github.com/tue-robotics/ed.git
-    git clone https://github.com/tue-robotics/ed_object_models.git
-    git clone https://github.com/tue-robotics/ed_msgs.git
-    git clone https://github.com/tue-robotics/code_profiler.git
-    git clone https://github.com/tue-robotics/geolib2.git
-    git clone https://github.com/tue-robotics/rgbd.git
-    git clone https://github.com/tue-robotics/tue_config.git
-    git clone https://github.com/tue-robotics/tue_filesystem.git
-    git clone https://github.com/tue-robotics/tue_serialization.git
+- id: big-door
+  type: thing/submodel
+  pose: { x: -0.282, y: 0.742, z: 0.470, Z: 3.14}
+  state-update-group: group_name_xyz
 
-You will also need the following system dependencies (ROS kinetic, Ubuntu 16.04):
+- [...]
 
-    sudo apt-get install ros-kinetic-geometry-msgs ros-kinetic-pcl-ros ros-kinetic-message-filters ros-kinetic-image-geometry ros-kinetic-kdl-parser ros-kinetic-roslib ros-kinetic-std-srvs libyaml-cpp-dev ros-kinetic-cv-bridge ros-kinetic-tf libassimp-dev ros-kinetic-message-generation ros-kinetic-roscpp ros-kinetic-message-runtime ros-kinetic-class-loader
+state-update-group: group_name_xyz
+flags:
+  - flag: state-update-group-composition
 
-This should be sufficient to successfully compile ED:
+```
+ - state-update-group: Connects multiple objects in one group. This group will be treated differently in an update to enable submodel updates.
 
-    cd <your_catkin_workspace>
-    catkin_make/catkin build
+ - flag state-update-group-main: One object of a state-update-group should be the main_part. This should be the object, which connects all submodels. If the main_part of a group is updated all its submodels will be moved/rotated with the main_part. E.g. if the main body of a cabinet is moved in the model all its drawers/doors will move with it.
 
-## ED Extensions
+ - flag state-update-group-composition: If the composition itself is updated, this flag will redirect the update from the composition to the main_part of the state-update-group.
 
-### Localization
-A fast particle filter implementation and sensor models for robot localization which always take into account the most recent state of the world.
-- https://github.com/tue-robotics/ed_localization.git
 
-### Visualization
-Extension for visualizing the current world model state. The GUI server exposes ROS API's that can be used by various clients. Example clients are the `ed_rviz_publisher` of the `ed_gui_server` package and the `ed_rviz_plugins/WorldModel`. display.
-- https://github.com/tue-robotics/ed_gui_server.git
-- https://github.com/tue-robotics/ed_rviz_plugins.git
-    
-### Sensor integration
-Plugins for integrating sensor data into ED, e.g. Lidar, RGBD
-- https://github.com/tue-robotics/ed_sensor_integration.git
+Sub_model_of_a_thing.yaml:
+``` yaml
+# standard yaml
+shape:
+  group:
+  - box:
+      pose: {x: 0.00, y: 0.0, z: -0.0325}
+      size: {x: 0.40, y: 0.458, z: 0.01}
 
-### Navigation
-Extension for publishing occupancy grids and calculating map navigation constraints.
-- https://github.com/tue-robotics/ed_navigation.git
+color: {blue: 1.0, green: 1.0, red: 1.0}
 
-### Perception
-Extension for classifying entities based on their attached RGBD measurements.
-- https://github.com/tue-robotics/ed_perception.git
+[...]
 
-### MoveIt
-Extension for exporting meshes to MoveIt
-- https://github.com/tue-robotics/ed_moveit.git
+
+# additional parameters from this extension
+state_update: #
+  ROI: {z_min: -0.06, z_max: 0.06, mode: "include"}
+  degrees_of_freedom:
+    rotation: false
+    translation: true
+    translation_restriction: {x: 0, y: 1}
+  state_definitions: {close: 0.0 , open: 0.2925, mode: "linear"}
+```
+
+ - state_update:
+   - ROI: Region of interest. Defines an height area between z_min and z_max in the object space, where rgbd sensor values should be filtered/not filtered (mode: "exclude"/"include"). Use this to enhance the sensor data to exclude non relevant data.
+   - degrees_of_freedom: Restrict the movement of the submodel.
+     - rotation: Can the submodel rotate? Doors -> Yes, Drawers -> No
+     - translation: Can the center of the submodel be moved? Doors -> No (If the center of the door is at the hinge), Drawers -> Yes
+     - translation_restriction: On which vector/axis can the submodel be moved?
+
+![Restrictions](./restrictions.gif)
+
+  - state_definitions: Defines two states relative to the initial position. The [ed_sensor_integration (submodel_states)](https://github.com/iki-wgt/ed/commits/submodel_states) package uses this information to gain state information by interpolating between the closed and open value.
+    - mode "linear": Close and open correspond to the absolute distance of the initial position.
+    - mode "angle": Close and open correspond to clockwise difference in angle to the initial pose.
+
+
+## Authors
+ - Jakob Fichtl - _Main Contributor_ - @jf-171197
+ - Michael Zappe - _Contributor_ - @mz-171742
+
+## License
+ - To be determined.
